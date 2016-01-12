@@ -1,0 +1,22 @@
+{
+    "name": "m1x0n/vintage-games-parser",
+    "description": "Parse TOP 100 vintage games",
+    "require": {
+        "symfony/dom-crawler": "^3.0",
+        "pimple/pimple": "^3.0"
+    },
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "m1x0n",
+            "email": "mmorozovm@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+
+    "autoload": {
+        "psr-4": {
+            "VintageGamesParser\\": "src/"
+        }
+    }
+}
