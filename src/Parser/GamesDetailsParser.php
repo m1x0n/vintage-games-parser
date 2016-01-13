@@ -28,44 +28,60 @@ class GamesDetailsParser implements ParserInterface
 
         $details = [];
 
-        $textData = $this->domCrawler->filterXpath('//body/center[1]/center[3]/table/tr/td[1]')->html();
-        $extracted = $this->extractGameDetails($textData);
-        $details['name'] = $extracted['name'];
-        $details['year'] = (int)$extracted['year'];
+        try {
+            $textData = $this->domCrawler
+                ->filter('table[width="80%"] td')
+                ->eq(0)
+                ->html();
 
-        $coinOpImage = $this->domCrawler
-            ->filter('img[alt="' . $details['name'] . '"]')
-            ->extract(array('src'));
+            $extracted = $this->extractGameDetails($textData);
+            $details['name'] = $extracted['name'];
+            $details['year'] = (int)$extracted['year'];
 
-        $coinOpImage = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $coinOpImage);
+            $coinOpImage = $this->domCrawler
+                ->filter('img[alt="' . $details['name'] . '"]')
+                ->extract(array('src'));
 
-        $details['coinOp'] = !empty($coinOpImage[0]) ? $coinOpImage[0] : null;
+            $coinOpImage = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $coinOpImage);
 
-        $marqueeImage = $coinOpImage = $this->domCrawler
-            ->filter('img[alt~="' . $details['name'] . ' - marquee"]')
-            ->extract(array('src'));
+            $details['coinOp'] = !empty($coinOpImage[0]) ? $coinOpImage[0] : null;
 
-        $marqueeImage = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $marqueeImage);
+            $marqueeImage = $coinOpImage = $this->domCrawler
+                ->filter('img[alt~="' . $details['name'] . ' - marquee"]')
+                ->extract(array('src'));
 
-        $details['marquee'] = !empty($marqueeImage[0]) ? $marqueeImage[0] : null;
+            $marqueeImage = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $marqueeImage);
 
-        $screenShots = $this->domCrawler
-            ->filter('img[alt~="' . $details['name'] . ' - Title screen image"]')
-            ->extract(array('src'));
+            $details['marquee'] = !empty($marqueeImage[0]) ? $marqueeImage[0] : null;
 
-        $screenShots = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $screenShots);
+            $screenShots = $this->domCrawler
+                ->filter('img[alt~="' . $details['name'] . ' - Title screen image"]')
+                ->extract(array('src'));
 
-        $details['screenShots'] = $screenShots;
+            $screenShots = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $screenShots);
 
-        $cabinets = $this->domCrawler
-            ->filter('img[alt~="' . $details['name'] . ' - Cabinet Image"]')
-            ->extract(array('src'));
+            $details['screenShots'] = $screenShots;
 
-        $cabinets = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $cabinets);
+            $cabinets = $this->domCrawler
+                ->filter('img[alt~="' . $details['name'] . ' - Cabinet Image"]')
+                ->extract(array('src'));
 
-        $details['cabinets'] = $cabinets;
+            $cabinets = array_map(function($img) use ($baseImageUrl) { return $baseImageUrl . $img;}, $cabinets);
 
-        $this->domCrawler->clear();
+            $details['cabinets'] = $cabinets;
+
+            $this->domCrawler->clear();
+
+        } catch (\Exception $e) {
+            $details = [
+                'name' => null,
+                'year' => null,
+                'coinOp' => null,
+                'marquee' => null,
+                'screenShots' => [],
+                'cabinets' => []
+            ];
+        }
 
         return new GameDetails($details);
     }
