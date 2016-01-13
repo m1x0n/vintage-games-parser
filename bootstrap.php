@@ -4,19 +4,30 @@ use Pimple\Container;
 
 require_once dirname(__FILE__) . '/vendor/autoload.php';
 
-$bindings = [
-    'application' => function($c) {
-        return new \VintageGamesParser\Application($c['parser']);
-    },
+$container = new Container();
 
-    'parser' => function($c) {
-        return new VintageGamesParser\Parser\GamesParser($c['crawler']);
-    },
+$container['application'] = function($c) {
+    return new \VintageGamesParser\Application($c['aggregator']);
+};
 
-    'crawler' => function($c) {
-        return new \Symfony\Component\DomCrawler\Crawler();
-    }
-];
+$container['games_parser'] = function($c) {
+    return new VintageGamesParser\Parser\GamesParser($c['crawler'], $c['loader']);
+};
 
-$container = new Container($bindings);
+$container['games_details_parser'] = function($c) {
+    return new \VintageGamesParser\Parser\GamesDetailsParser($c['crawler'], $c['loader']);
+};
+
+$container['crawler'] = $container->factory(function($c) {
+    return new \Symfony\Component\DomCrawler\Crawler();
+});
+
+$container['loader'] = function ($c) {
+    return new \VintageGamesParser\Loader\WebPageLoader();
+};
+
+$container['aggregator'] = function($c) {
+    return new \VintageGamesParser\Aggregator\GamesAggregator($c['games_parser'], $c['games_details_parser']);
+};
+
 return $container;

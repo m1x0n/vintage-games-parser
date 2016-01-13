@@ -2,27 +2,25 @@
 
 namespace VintageGamesParser;
 
-use VintageGamesParser\Parser\ParserInterface;
+use VintageGamesParser\Aggregator\AggregatorInterface;
 
 class Application
 {
-    /**
-     * @var ParserInterface
-     */
-    public $parser;
+    const ENDPOINT = "http://www.arcade-museum.com/TOP100.php";
 
-    public function __construct(ParserInterface $parser)
+    /**
+     * @var AggregatorInterface
+     */
+    private $aggregator;
+
+    public function __construct(AggregatorInterface $aggregator)
     {
-        $this->parser = $parser;
+        $this->aggregator = $aggregator;
     }
 
-    public function run($url)
+    public function run()
     {
-        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-            echo sprintf("Invalid url %s provided\n", $url);
-        } else {
-            $data = $this->parser->parse($url);
-            echo json_encode($data, JSON_PRETTY_PRINT);
-        }
+        $data = $this->aggregator->aggregate(self::ENDPOINT);
+        echo json_encode($data, JSON_PRETTY_PRINT);
     }
 }

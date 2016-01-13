@@ -3,7 +3,8 @@
     "description": "Parse TOP 100 vintage games",
     "require": {
         "symfony/dom-crawler": "^3.0",
-        "pimple/pimple": "^3.0"
+        "pimple/pimple": "^3.0",
+        "symfony/css-selector": "^3.0"
     },
     "license": "GPL",
     "authors": [
